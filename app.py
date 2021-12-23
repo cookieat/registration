@@ -39,12 +39,21 @@ def registration():
         name = request.form.get('name')
         login = request.form.get('login')
         password = request.form.get('password')
+        cursor.execute("SELECT * FROM service.users WHERE login=%s", [str(login)])
+        if (len(login)>5) and (len(password)>5) and (len(name)>5):
+            records = list(cursor.fetchall())
+            print (records)
+            if records:
+                return render_template('check_error.html')
+            else:
+                cursor.execute('INSERT INTO service.users (full_name, login, password) VALUES (%s, %s, %s);',
+                               (str(name), str(login), str(password)))
+                conn.commit()
 
-        cursor.execute('INSERT INTO service.users (full_name, login, password) VALUES (%s, %s, %s);',
-                       (str(name), str(login), str(password)))
-            conn.commit()
+
+        else:
+            return render_template('registration_error.html')
 
         return redirect('/login/')
 
     return render_template('registration.html')
-
